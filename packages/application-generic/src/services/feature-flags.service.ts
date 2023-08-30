@@ -20,7 +20,7 @@ const featureFlagsProviders = {
 
 @Injectable()
 export class FeatureFlagsService {
-  private service: IFeatureFlagsService;
+  public service: IFeatureFlagsService;
 
   constructor() {
     Logger.verbose('Feature Flags service initialized', LOG_CONTEXT);
@@ -34,6 +34,14 @@ export class FeatureFlagsService {
     }
   }
 
+  private async initialize(): Promise<void> {
+    if (this.service) {
+      await this.service.initialize();
+    } else {
+      Logger.error('No Feature Flags service available to initialize');
+    }
+  }
+
   public async gracefullyShutdown(): Promise<void> {
     if (this.isServiceEnabled()) {
       try {
@@ -44,9 +52,9 @@ export class FeatureFlagsService {
         );
       } catch (error) {
         Logger.error(
+          error,
           'Feature Flags service has failed when shut down',
-          LOG_CONTEXT,
-          error
+          LOG_CONTEXT
         );
       }
     }
@@ -90,9 +98,9 @@ export class FeatureFlagsService {
         );
       } catch (error) {
         Logger.error(
+          error,
           'Feature Flags service has failed when initialized',
-          LOG_CONTEXT,
-          error
+          LOG_CONTEXT
         );
       }
     }
